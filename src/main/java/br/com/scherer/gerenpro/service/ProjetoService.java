@@ -3,6 +3,7 @@ package br.com.scherer.gerenpro.service;
 import br.com.scherer.gerenpro.dto.ProjetoCadastro;
 import br.com.scherer.gerenpro.entity.Projeto;
 import br.com.scherer.gerenpro.entity.SituacaoProjeto;
+import br.com.scherer.gerenpro.exception.ProjetoNotFoundException;
 import br.com.scherer.gerenpro.repository.ProjetoRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,22 @@ public class ProjetoService {
         projeto.setAtivo(true);
 
         return projetoRepository.save(projeto);
+    }
+
+    public Projeto listarPorId(String id) {
+        return projetoRepository.findById(id).orElseThrow(
+                () -> new ProjetoNotFoundException(id)
+        );
+    }
+
+    @Transactional
+    public Projeto atualizar(String id, ProjetoCadastro projetoCadastro) {
+        Projeto projeto = listarPorId(id);
+        projeto.setNome(projetoCadastro.nome());
+        projeto.setDescricao(projeto.getDescricao());
+        projeto.setDataInicio(projetoCadastro.dataInicio());
+        projeto.setDataFim(projetoCadastro.dataFim());
+        projeto.setDataAlteracao(LocalDate.now());
+        return projeto;
     }
 }
